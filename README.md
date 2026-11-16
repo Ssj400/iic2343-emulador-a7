@@ -46,12 +46,38 @@ Imagen guardada en: mi_programa.png
 (abierta en tu visor de imagenes)
 ```
 
-- **No es una ventana en vivo:** cada ejecución genera una foto del estado de la pantalla (o una
-  animación con `--gif`) y la abre en tu visor de imágenes.
+- `probar.py` saca una **foto** del final (o una animación con `--gif`). Para **jugar en vivo**,
+  mira el paso 4.
 - Si tu programa tiene un error, te dice la línea y qué formas de instrucción existen.
 - Lo más usado: `--botones 4` (botón izquierda apretado), `--frames 3` (ejecutar más tiempo),
   `--gif` (animación), `--input 40:buttons:8` (una pulsación en el ciclo 40). Todas las opciones:
   `python3 probar.py --help`.
+
+**4. Jugar en vivo, con el teclado como botones** (necesita PyQt6: `pip install PyQt6`)
+
+```bash
+python3 jugar.py mi_programa.suasm
+```
+
+Se abre una ventana con la pantalla del juego. Debajo ves el display, los LEDs, los switches, el
+timer y la velocidad.
+
+| Tecla | Equivale en la placa a |
+|---|---|
+| Flechas | botones izquierda / derecha / arriba / abajo |
+| Espacio o Enter | botón central |
+| `S` | switch 15 (el de inicio): arriba / abajo. **Empieza abajo**, como en la placa |
+| `0` a `9` | switches 0 a 9 |
+| `+` / `-` | más rápido / más lento |
+| `P` / `R` / `Esc` | pausa / reiniciar / salir |
+
+**Sobre la velocidad.** El emulador es ~50 veces más lento que la placa. Para que el juego no vaya
+en cámara lenta, `jugar.py` hace avanzar el timer 50 veces más rápido: un tick de
+`timer_milisegundos` cada 2 000 instrucciones en vez de 100 000. Así se ve a ~50–60 % de la
+velocidad de la placa. Se comporta igual que la placa **mientras tu programa haga menos de
+~2 000 instrucciones entre ticks**; si hace más trabajo que eso por tick, aquí irá distinto.
+`--acelerar 1` usa el timer exacto, pero todo va en cámara lenta. El ritmo final del juego se
+ajusta en el laboratorio: lo que veas aquí no lo garantiza.
 
 El resto de este README es referencia: léelo cuando necesites un detalle.
 
@@ -109,6 +135,7 @@ El resto de este README es referencia: léelo cuando necesites un detalle.
 - **Python 3.10 o superior** (desarrollado con 3.14).
 - `asm`, `run`, `trace` y `selftest`: **solo biblioteca estándar**.
 - `frame` (PNG/GIF) y las pruebas de gráficos: `numpy` y `Pillow`.
+- `jugar.py` (jugar en vivo): además `PyQt6`.
 - **Material del curso, que este repositorio NO incluye**: el ZIP del proyecto base
   (`IIC2343_ProyectoBaseACF_7.zip`) y el paquete del ensamblador
   (`MinkiAssemblerPkg-v2.0.2.zip`), ambos descargables desde Canvas.
@@ -463,6 +490,7 @@ Los programas de `programas/` son **propios y mínimos; no son el juego de la ac
 | Archivo | Contenido |
 |---|---|
 | `probar.py` | **atajo de un solo comando**: ensambla, ejecuta, muestra las variables y abre la imagen |
+| `jugar.py` | **jugar en vivo** en una ventana, con el teclado como botones y switches (PyQt6) |
 | `cli.py` | línea de comandos con control fino: `asm`, `run`, `trace`, `frame`, `selftest` |
 | `suasm.py` | ensamblador: `DATA:`/`CODE:`, etiquetas, literales, prólogo de `DATA` |
 | `cpu.py` | máquina instrucción por instrucción, con avisos |
@@ -475,7 +503,7 @@ Los programas de `programas/` son **propios y mínimos; no son el juego de la ac
 | `base_invaders.txt` | **no incluido** (opcional): plantilla del curso; solo la usan unas pruebas |
 
 ```bash
-python3 -m unittest discover -s tests          # 137 pruebas (134 + 2 omitidas sin base_invaders.txt)
+python3 -m unittest discover -s tests          # 147 pruebas (144 + 2 omitidas sin base_invaders.txt)
 python3 -m unittest tests.test_cpu -v          # un archivo
 ```
 

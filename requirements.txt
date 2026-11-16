@@ -1,4 +1,6 @@
-# Solo hacen falta para `cli.py frame` (PNG/GIF) y para las pruebas de gpu.
+# numpy y Pillow: para dibujar la pantalla (probar.py, jugar.py, cli.py frame) y sus pruebas.
+# PyQt6: solo para jugar.py (la ventana en vivo).
 # asm, run, trace y selftest usan unicamente la biblioteca estandar.
 numpy
 Pillow
+PyQt6
