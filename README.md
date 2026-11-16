@@ -7,6 +7,56 @@ sin monitor VGA.
 > **Antes de usarlo, lee [Qué es y qué no es](#qué-es-y-qué-no-es).** No es oficial, no está
 > validado contra la placa y no reemplaza al MinkiAssembler ni a Vivado.
 
+## Empieza aquí (5 minutos)
+
+Necesitas: Python 3.10+, los dos ZIP del curso (proyecto base de ACF7 y MinkiAssembler) y tu
+archivo `.suasm`.
+
+**1. Una sola vez: instalar y preparar**
+
+```bash
+git clone https://github.com/Ssj400/iic2343-emulador-a7.git
+cd iic2343-emulador-a7
+pip install -r requirements.txt
+python3 preparar_materiales.py RUTA/IIC2343_ProyectoBaseACF_7.zip RUTA/MinkiAssemblerPkg-v2.0.2.zip
+```
+
+**2. Tu programa:** crea un archivo, por ejemplo `mi_programa.suasm` (puedes partir de uno de
+`programas/`; ese nombre está en `.gitignore`, así no lo subes por accidente).
+
+**3. Pruébalo, con un solo comando:**
+
+```bash
+python3 probar.py mi_programa.suasm
+```
+
+Eso ensambla tu programa, lo ejecuta, imprime el valor final de **cada variable por su nombre**,
+avisa de errores típicos y **abre una imagen** de la pantalla en tu visor. Cambias el archivo,
+repites el comando, y ves el resultado:
+
+```
+Ensamblado OK: 33 palabras de ROM (16 variables, el CODE empieza en 0020).
+Ejecutado: 416800 ciclos (~1.0 frame, 8.3 ms a 50 MHz). Switches=0x8000, botones=0.
+
+Variables al terminar (nombre, direccion, valor):
+  nave_x     dir  10  =  300 (0x012C)
+  alien1_x   dir  12  =  100 (0x0064)
+  ...
+Imagen guardada en: mi_programa.png
+(abierta en tu visor de imagenes)
+```
+
+- **No es una ventana en vivo:** cada ejecución genera una foto del estado de la pantalla (o una
+  animación con `--gif`) y la abre en tu visor de imágenes.
+- Si tu programa tiene un error, te dice la línea y qué formas de instrucción existen.
+- Lo más usado: `--botones 4` (botón izquierda apretado), `--frames 3` (ejecutar más tiempo),
+  `--gif` (animación), `--input 40:buttons:8` (una pulsación en el ciclo 40). Todas las opciones:
+  `python3 probar.py --help`.
+
+El resto de este README es referencia: léelo cuando necesites un detalle.
+
+---
+
 ## Contenido
 
 1. [Qué es y qué no es](#qué-es-y-qué-no-es)
@@ -412,7 +462,8 @@ Los programas de `programas/` son **propios y mínimos; no son el juego de la ac
 
 | Archivo | Contenido |
 |---|---|
-| `cli.py` | línea de comandos: `asm`, `run`, `trace`, `frame`, `selftest` |
+| `probar.py` | **atajo de un solo comando**: ensambla, ejecuta, muestra las variables y abre la imagen |
+| `cli.py` | línea de comandos con control fino: `asm`, `run`, `trace`, `frame`, `selftest` |
 | `suasm.py` | ensamblador: `DATA:`/`CODE:`, etiquetas, literales, prólogo de `DATA` |
 | `cpu.py` | máquina instrucción por instrucción, con avisos |
 | `gpu.py` | rasterizador: carga los `.coe`, ventanas, transparencia, prioridad |
@@ -424,7 +475,7 @@ Los programas de `programas/` son **propios y mínimos; no son el juego de la ac
 | `base_invaders.txt` | **no incluido** (opcional): plantilla del curso; solo la usan unas pruebas |
 
 ```bash
-python3 -m unittest discover -s tests          # 131 pruebas (128 + 2 omitidas sin base_invaders.txt)
+python3 -m unittest discover -s tests          # 137 pruebas (134 + 2 omitidas sin base_invaders.txt)
 python3 -m unittest tests.test_cpu -v          # un archivo
 ```
 
