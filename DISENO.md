@@ -454,3 +454,32 @@ memoria. `N = 0` devuelve `SPRITES` sin tocar (comportamiento idéntico;
 ya las instancias (o usa otras direcciones), hay que cambiar `EXTRA_ENEMY_AX` o
 pasar `sprites=` en vez de `extra_enemies=`.
 
+## 12. Uso pensado para estudiantes: `probar.py` y `jugar.py`
+
+La primera versión solo tenía `cli.py`, y su uso no se entendía: `frame` guardaba un
+PNG en silencio y quien lo probaba esperaba una ventana de juego. Se agregaron dos
+atajos encima de `cli.py`, sin cambiar la semántica de la máquina:
+
+- **`probar.py ARCHIVO`**: ensambla, ejecuta 1 frame (o lo que se pida), imprime cada
+  variable de `DATA` por nombre (omite 0–6, que son E/S), muestra los avisos sin el
+  ruido de la inicialización de `DATA` (se ejecuta el prólogo y luego se borran los
+  avisos de escritura en E/S), guarda la imagen y la abre con el visor del sistema
+  (`xdg-open`, `open` u `os.startfile`).
+- **`jugar.py ARCHIVO`**: ventana PyQt6 en vivo. Cada ~30 ms ejecuta instrucciones en
+  lotes de 2 000 y redibuja; flechas/espacio fijan `buttons`, `S` y `0`–`9` alternan
+  `switches`, `+`/`-` cambian la velocidad, `P`/`R`/`Esc`. Se ignoran las repeticiones
+  automáticas del teclado y se sueltan los botones al perder el foco. Se eligió PyQt6
+  porque Tkinter no funcionaba (falta `libtk8.6`) y pygame no estaba instalado.
+
+**Velocidad (decisión con costo de fidelidad).** La máquina en Python ejecuta del orden
+de 1 M instrucciones/s (~50 veces menos que la placa a 50 MHz) y el render de un cuadro
+cuesta ~20 ms. Para que el juego no vaya en cámara lenta, `jugar.py` usa
+`MaquinaAcelerada`, que cambia solo el prescaler del timer: con `--acelerar K` cada
+microsegundo dura `round(100 / K)` ciclos en vez de 100 (por defecto K = 50: un tick
+de `timer_milisegundos` cada 2 000 instrucciones). La CPU, la E/S y el render no
+cambian. El comportamiento coincide con la placa mientras el programa ejecute menos
+instrucciones entre ticks que las que caben en uno (~2 000 con K = 50); si no, el
+programa "ve" pasar el tiempo más rápido que en la placa. `--acelerar 1` es el timer
+exacto. Medido en la máquina de desarrollo: ~0,55 M instr/s con render, ≈55 % de la
+velocidad de la placa con K = 50.
+

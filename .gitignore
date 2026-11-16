@@ -19,5 +19,7 @@ frame.png
 .idea/
 .DS_Store
 
-# Tu propio trabajo de la actividad (no lo subas por accidente)
+# Tu propio trabajo de la actividad (no lo subas por accidente):
+# cualquier .suasm en la raiz del repo; los ejemplos viven en programas/.
 mi_*.suasm
+/*.suasm
