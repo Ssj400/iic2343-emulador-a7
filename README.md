@@ -64,8 +64,8 @@ sin monitor VGA.
   (`MinkiAssemblerPkg-v2.0.2.zip`), ambos descargables desde Canvas.
 
 ```bash
-git clone <URL-del-repositorio>
-cd <carpeta-del-repositorio>
+git clone https://github.com/Ssj400/iic2343-emulador-a7.git
+cd iic2343-emulador-a7
 
 # Opcional: entorno virtual (solo hace falta para `frame`)
 python3 -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
