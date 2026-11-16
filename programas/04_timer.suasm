@@ -1,0 +1,43 @@
+// 04_timer.suasm -- esperar a que cambie el contador de milisegundos.
+//
+// Que practica: leer el timer por E/S en la direccion 5, comparar contra una
+// referencia guardada y usar una bandera de cambio en vez de una igualdad
+// exacta ("esperar a que ms == 100" se rompe cuando el contador lo salta o
+// cuando envuelve).
+//
+// Ojo con los tiempos: un tick de timer_milisegundos son 100 000 ciclos del
+// reloj reducido, es decir ~2 ms reales si el reloj va a 50 MHz.  El contador
+// envuelve cada ~2 s reales (1000 ticks).
+//
+// Ejecutar (unos 400 000 ciclos para ver ~3 cambios):
+//   python3 cli.py run programas/04_timer.suasm --steps 400000 --ram 7 10 --timing
+// Un frame completo son 416 800 ciclos.
+
+DATA:
+
+  leds 0                 // 0
+  switches 0             // 1
+  displays 0             // 2
+  botones 0              // 3
+  timer_segundos 0       // 4
+  timer_milisegundos 0   // 5
+  timer_microsegundos 0  // 6
+
+  referencia 0           // 7
+  cambios 0              // 8
+
+CODE:
+
+inicio:
+  MOV A, (5)             // leer timer_milisegundos (direccion 5 = E/S)
+  MOV (referencia), A
+
+espera:
+  MOV A, (5)
+  CMP A, (referencia)    // A - referencia
+  JEQ espera             // sigue esperando mientras no cambie
+
+  INC (cambios)          // contador de ticks observados
+  MOV A, (5)
+  MOV (2), A             // mostrar el ms actual en el display
+  JMP inicio

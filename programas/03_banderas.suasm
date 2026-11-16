@@ -1,0 +1,50 @@
+// 03_banderas.suasm -- la rareza de las banderas.
+//
+// El registro de estado del computador se carga en *todos* los flancos, y los
+// saltos tienen SelALU = 00000000 (que la ALU interpreta como SHL con
+// operando 0).  Consecuencia: despues de un JMP (o un NOP, o un CALL) queda
+// C=0, Z=1, N=0.  Un salto condicional inmediatamente despues de un JMP ve
+// Z=1 y "se toma solo".
+//
+// El programa escribe marca = 1 si el JEQ se tomo (no deberia, A != B) y
+// marca = 0 si no se tomo.
+//
+// Ejecutar:
+//   python3 cli.py run programas/03_banderas.suasm --steps 80
+//   python3 cli.py run programas/03_banderas.suasm --steps 80 --flags-mode sticky
+//
+// Con --flags-mode sticky el emulador usa una variante hipotetica en la que
+// solo las operaciones de ALU reales tocan las banderas; ahi marca = 0.
+
+DATA:
+
+  leds 0                 // 0
+  switches 0             // 1
+  displays 0             // 2
+  botones 0              // 3
+  timer_segundos 0       // 4
+  timer_milisegundos 0   // 5
+  timer_microsegundos 0  // 6
+
+  marca 0                // 7
+
+CODE:
+
+inicio:
+  MOV A, 1
+  MOV B, 2
+  CMP A, B               // A - B != 0  => Z = 0
+  JMP salto              // el JMP pisa Z y lo deja en 1
+
+salto:
+  JEQ inesperado         // se toma aunque A != B
+  MOV A, 0
+  MOV (marca), A
+  JMP fin
+
+inesperado:
+  MOV A, 1
+  MOV (marca), A
+
+fin:
+  JMP fin

@@ -1,0 +1,46 @@
+// 02_pila.suasm -- dos CALL anidados y el orden de retorno.
+//
+// Que practica: que guarda realmente un CALL (PC+1), que RET incrementa SP
+// antes de leer, que la RAM no se "borra" al hacer POP, y que el orden de las
+// llamadas encadenadas es LIFO.
+//
+// Ejecutar:
+//   python3 cli.py run programas/02_pila.suasm --steps 80 --ram 0 10
+//   python3 cli.py run programas/02_pila.suasm --steps 80 --ram 4092 4096
+
+DATA:
+
+  leds 0                 // 0
+  switches 0             // 1
+  displays 0             // 2
+  botones 0              // 3
+  timer_segundos 0       // 4
+  timer_milisegundos 0   // 5
+  timer_microsegundos 0  // 6
+
+  marca_a 0              // 7  se escribe al volver de "uno"
+  marca_b 0              // 8  se escribe dentro de "uno"
+  orden 0                // 9  cuenta en que orden corrieron las subrutinas
+
+CODE:
+
+inicio:
+  MOV A, 0
+  MOV (orden), A
+  CALL uno
+  MOV A, 3
+  MOV (marca_a), A       // solo se alcanza si RET volvio bien
+
+fin:
+  JMP fin
+
+uno:
+  MOV A, 1
+  MOV (marca_b), A
+  CALL dos
+  INC (orden)            // tercera en ejecutarse
+  RET
+
+dos:
+  INC (orden)            // primera en ejecutarse
+  RET

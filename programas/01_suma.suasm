@@ -1,0 +1,46 @@
+// 01_suma.suasm -- sumar un arreglo en RAM y mostrar el resultado.
+//
+// Que practica: direccionamiento indirecto con un registro como puntero
+// (MOV A, (B)), CMP + JEQ, y el detalle de que la RAM es de palabras
+// (no de bytes) y de que las direcciones 1, 3, 4, 5 y 6 estan "tapadas"
+// por la E/S: leerlas devuelve switches, botones o el timer, nunca el valor
+// guardado.  Por eso el arreglo empieza en la direccion 7.
+//
+// Ejecutar:
+//   python3 cli.py run programas/01_suma.suasm --steps 60 --ram 0 13
+
+DATA:
+
+  leds 0                 // 0  (salida)
+  switches 0             // 1  (entrada)
+  displays 0             // 2  (salida)
+  botones 0              // 3  (entrada)
+  timer_segundos 0       // 4  (entrada)
+  timer_milisegundos 0   // 5  (entrada)
+  timer_microsegundos 0  // 6  (entrada)
+
+  numeros 1 2 3 4 5      // 7..11
+  total 0                // 12
+
+CODE:
+
+inicio:
+  MOV B, numeros         // B = 7 (direccion base del arreglo)
+  MOV D, 5               // D = cantidad de elementos
+  MOV A, 0
+  MOV (total), A         // total = 0
+
+ciclo:
+  CMP D, 0               // D - 0
+  JEQ fin                // si D == 0, terminar
+  MOV A, (B)             // A = RAM[B]
+  ADD A, (total)         // A = A + RAM[total]
+  MOV (total), A
+  ADD B, 1               // avanzar el puntero una palabra
+  DEC D                  // D = D - 1
+  JMP ciclo
+
+fin:
+  MOV A, (total)         // copiar el total al display (direccion 2)
+  MOV (2), A
+  JMP fin

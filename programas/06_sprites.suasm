@@ -1,0 +1,110 @@
+// 06_sprites.suasm -- mover la nave y una bala y VERLO en un PNG/GIF.
+//
+// Que practica, en orden de importancia:
+//
+// 1) Las direcciones que leen de verdad los componentes entregados:
+//      mainShipSM   lee 10 y 11   (no 8 y 9)
+//      enemyShipSM  lee 12 y 13
+//      ammoSM       lee 14 y 15
+//      backgroundSM lee 0 (la misma direccion para x y para y, que ademas es
+//                         el registro de LEDs)
+//    Por eso el DATA deja 8 y 9 como relleno: asi nave_x/nave_y caen en 10/11
+//    y cada sprite aparece donde uno espera.  Es la "alineacion de
+//    direcciones" que pide el enunciado del formativo.
+//
+// 2) Que el movimiento tiene que ir AMARRADO AL TIMER.  Sin ese freno el
+//    programa mueve la nave una vez por instruccion y cruza la pantalla en
+//    microsegundos: en el monitor no se ve nada, solo un salto.  Aqui la nave
+//    se mueve 1 pixel cada vez que cambia timer_milisegundos (~2 ms reales),
+//    asi que cruza la pantalla en ~1,3 s.
+//
+// Ejecutar:
+//   python3 cli.py frame programas/06_sprites.suasm --steps 300 --out nave.png
+//   python3 cli.py frame programas/06_sprites.suasm --frames 90 --gif nave.gif \
+//       --shots 18 --input 6000000:buttons:4 --input 20000000:buttons:8
+//
+// (Los --input van en CICLOS, no en frames: 1 frame = 416 800 ciclos.)
+
+DATA:
+
+  leds 0                 // 0   salida: tambien x1 e y1 del fondo
+  switches 0             // 1   entrada
+  displays 0             // 2   salida
+  botones 0              // 3   entrada
+  timer_segundos 0       // 4   entrada
+  timer_milisegundos 0   // 5   entrada
+  timer_microsegundos 0  // 6   entrada
+  aux 0                  // 7
+
+  relleno_x 0            // 8   solo para correr las direcciones
+  relleno_y 0            // 9
+
+  nave_x 308             // 10  mainShipSM
+  nave_y 390             // 11
+  enemigo_x 120          // 12  enemyShipSM
+  enemigo_y 60           // 13
+  bala_x 340             // 14  ammoSM
+  bala_y 300             // 15
+
+  referencia 0           // 16  ultimo valor de ms que ya procesamos
+
+CODE:
+
+esperar_tick:
+  MOV A, (timer_milisegundos)   // 5 = E/S
+  CMP A, (referencia)
+  JEQ esperar_tick              // sin tick nuevo no se mueve nada
+  MOV (referencia), A
+
+inicio:
+  MOV A, (botones)       // 3 = E/S: switches de los botones
+  MOV B, 4               // bit 2 = izquierda
+  AND A, B
+  CMP A, 0
+  JNE izquierda
+
+  MOV A, (botones)
+  MOV B, 8               // bit 3 = derecha
+  AND A, B
+  CMP A, 0
+  JNE derecha
+
+  MOV A, (botones)
+  MOV B, 2               // bit 1 = arriba: disparar
+  AND A, B
+  CMP A, 0
+  JNE disparar
+
+  JMP esperar_tick
+
+izquierda:
+  MOV A, (nave_x)
+  CMP A, 2               // el sprite se dibuja desde x1-2
+  JLE esperar_tick
+  SUB A, 1
+  MOV (nave_x), A
+  JMP esperar_tick
+
+derecha:
+  MOV A, (nave_x)
+  CMP A, 573             // 573 + 69 - 2 = 640: ultimo valor completo
+  JGE esperar_tick
+  ADD A, 1
+  MOV (nave_x), A
+  JMP esperar_tick
+
+disparar:
+  MOV A, (bala_y)
+  CMP A, 60
+  JLE reiniciar_bala
+  SUB A, 4               // la bala sube
+  MOV (bala_y), A
+  JMP esperar_tick
+
+reiniciar_bala:
+  MOV A, 350             // vuelve abajo, alineada con la nave
+  MOV (bala_y), A
+  MOV A, (nave_x)
+  ADD A, 30
+  MOV (bala_x), A
+  JMP esperar_tick

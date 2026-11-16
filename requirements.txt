@@ -1,0 +1,4 @@
+# Solo hacen falta para `cli.py frame` (PNG/GIF) y para las pruebas de gpu.
+# asm, run, trace y selftest usan unicamente la biblioteca estandar.
+numpy
+Pillow

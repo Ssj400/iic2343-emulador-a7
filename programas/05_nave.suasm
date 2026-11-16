@@ -1,0 +1,68 @@
+// 05_nave.suasm -- mover la nave con los botones, con topes.
+//
+// Que practica: leer botones por E/S (direccion 3), aislar un bit con AND,
+// comparar con CMP y decidir con JNE/JLE/JGE, y respetar el rango visible del
+// sprite.  No es el juego: no hay aliens, ni balas, ni colisiones.
+//
+// Geometria (mainShipSM del proyecto entregado): 69 x 90 pixeles.  El sprite
+// se dibuja entre x1-2 y x1+66, asi que para que se vea completo hace falta
+// 2 <= nave_x <= 573.  OJO: en el proyecto entregado el componente escucha las
+// direcciones 10/11, no 8/9; hay que hacer coincidir las constantes Ax1/Ay1
+// con el mapa de DATA (el enunciado pide justamente revisar eso).
+//
+// Ejecutar:
+//   python3 cli.py run programas/05_nave.suasm --buttons 4 --steps 120 --ram 8 14
+//   python3 cli.py run programas/05_nave.suasm --buttons 8 --steps 120 --ram 8 14
+//   python3 cli.py run programas/05_nave.suasm --steps 300 --ram 8 14 \
+//       --input 40:buttons:4 --input 160:buttons:8
+
+DATA:
+
+  leds 0                 // 0
+  switches 0             // 1
+  displays 0             // 2
+  botones 0              // 3
+  timer_segundos 0       // 4
+  timer_milisegundos 0   // 5
+  timer_microsegundos 0  // 6
+
+  aux 270                // 7
+  nave_x 308             // 8
+  nave_y 450             // 9
+  alien1_x 56            // 10
+  alien1_y 50            // 11
+  bala_x 308             // 12
+  bala_y 450             // 13
+
+CODE:
+
+inicio:
+  MOV A, (botones)       // direccion 3 = E/S, devuelve los botones
+  MOV B, 4               // bit 2 = izquierda
+  AND A, B
+  CMP A, 0
+  JNE izquierda
+
+  MOV A, (botones)
+  MOV B, 8               // bit 3 = derecha
+  AND A, B
+  CMP A, 0
+  JNE derecha
+
+  JMP inicio
+
+izquierda:
+  MOV A, (nave_x)
+  CMP A, 2
+  JLE inicio             // no salir por el borde izquierdo
+  SUB A, 2
+  MOV (nave_x), A
+  JMP inicio
+
+derecha:
+  MOV A, (nave_x)
+  CMP A, 573
+  JGE inicio             // no salir por el borde derecho
+  ADD A, 2
+  MOV (nave_x), A
+  JMP inicio

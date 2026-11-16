@@ -1,0 +1,23 @@
+# Material del curso: NO se publica (se obtiene con preparar_materiales.py)
+coe/
+minki_opcodes.json
+base_invaders.txt
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Salidas generadas
+*.png
+*.gif
+frame.png
+
+# Editor / sistema
+.vscode/
+.idea/
+.DS_Store
+
+# Tu propio trabajo de la actividad (no lo subas por accidente)
+mi_*.suasm
