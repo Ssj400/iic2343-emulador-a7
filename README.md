@@ -75,7 +75,7 @@ pip install -r requirements.txt
 python3 preparar_materiales.py RUTA/IIC2343_ProyectoBaseACF_7.zip RUTA/MinkiAssemblerPkg-v2.0.2.zip
 
 # Comprueba que todo funciona
-python3 cli.py selftest
+python3 cli.py selftest                  # deben salir 5 líneas [ok]; el aviso final sobre [001] es esperado
 python3 -m unittest discover -s tests
 ```
 
